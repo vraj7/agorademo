@@ -5,8 +5,20 @@ let localUid;
 let localAudioTrack;
 let remoteAudioTrack;
 
+// --- Player Controls ---
+let isAudioMuted = false;
+let isVideoMuted = false;
+let isScreenSharing = false;
+let originalVideoTrack = null;
+
 const joinBtn = document.getElementById('join');
 const leaveBtn = document.getElementById('leave');
+const muteAudioBtn = document.getElementById('mute-audio');
+const muteVideoBtn = document.getElementById('mute-video');
+const screenShareBtn = document.getElementById('screen-share');
+const resizePlayerBtn = document.getElementById('resize-player');
+const volumeSlider = document.getElementById('volume-slider');
+const remotePlayer = document.getElementById('remote-player');
 
 joinBtn.onclick = async () => {
     const appid = document.getElementById('appid').value.trim();
@@ -39,6 +51,7 @@ joinBtn.onclick = async () => {
             await client.subscribe(user, 'audio');
             remoteAudioTrack = user.audioTrack;
             remoteAudioTrack.play();
+            updateRemoteVolume();
         }
     });
 
@@ -52,6 +65,7 @@ joinBtn.onclick = async () => {
         if (mediaType === 'audio') {
             remoteAudioTrack = user.audioTrack;
             remoteAudioTrack.play();
+            updateRemoteVolume();
         }
     });
     client.on('user-unpublished', (user, mediaType) => {
@@ -101,6 +115,73 @@ leaveBtn.onclick = async () => {
     }
     await client.leave();
     document.getElementById('local-player').innerHTML = '<span id="local-placeholder" style="color:#aaa;">No local video</span>';
-}; 
+};
+
+// --- Player Controls ---
+muteAudioBtn.onclick = () => {
+    if (!localAudioTrack) return;
+    isAudioMuted = !isAudioMuted;
+    localAudioTrack.setEnabled(!isAudioMuted);
+    muteAudioBtn.querySelector('.material-icons').textContent = isAudioMuted ? 'mic_off' : 'mic';
+};
+
+muteVideoBtn.onclick = () => {
+    if (!localTrack) return;
+    isVideoMuted = !isVideoMuted;
+    localTrack.setEnabled(!isVideoMuted);
+    muteVideoBtn.querySelector('.material-icons').textContent = isVideoMuted ? 'videocam_off' : 'videocam';
+};
+
+volumeSlider.oninput = () => {
+    if (remoteAudioTrack) {
+        remoteAudioTrack.setVolume(Number(volumeSlider.value));
+    }
+};
+
+resizePlayerBtn.onclick = () => {
+    if (remotePlayer.classList.contains('expanded')) {
+        remotePlayer.classList.remove('expanded');
+        remotePlayer.style.width = '';
+        remotePlayer.style.height = '';
+        resizePlayerBtn.querySelector('.material-icons').textContent = 'fullscreen';
+    } else {
+        remotePlayer.classList.add('expanded');
+        remotePlayer.style.width = '98vw';
+        remotePlayer.style.height = '90vh';
+        resizePlayerBtn.querySelector('.material-icons').textContent = 'fullscreen_exit';
+    }
+};
+
+screenShareBtn.onclick = async () => {
+    if (!isScreenSharing) {
+        try {
+            originalVideoTrack = localTrack;
+            const screenTrack = await AgoraRTC.createScreenVideoTrack();
+            await client.unpublish([localTrack]);
+            localTrack = screenTrack;
+            await client.publish([localTrack]);
+            isScreenSharing = true;
+            screenShareBtn.querySelector('.material-icons').textContent = 'stop_screen_share';
+        } catch (e) {
+            alert('Screen sharing failed: ' + e.message);
+        }
+    } else {
+        if (originalVideoTrack) {
+            await client.unpublish([localTrack]);
+            localTrack = originalVideoTrack;
+            await client.publish([localTrack]);
+            isScreenSharing = false;
+            screenShareBtn.querySelector('.material-icons').textContent = 'screen_share';
+        }
+    }
+};
+
+// Update remote audio volume when new track is received
+function updateRemoteVolume() {
+    if (remoteAudioTrack) {
+        remoteAudioTrack.setVolume(Number(volumeSlider.value));
+    }
+}
+
 //37f3f5c76e184368a99d3bca53736157
 //007eJxTYLiXZ7/LVEkl83LkiwkRPmGZOa7R52YcefOQu7YoUcuS574Cg7F5mnGaabK5WaqhhYmxmUWipWWKcVJyoqmxubGZoak5p6drRkMgIwNPbQgLIwMEgvjsDCWpxSWJSckMDAArbR3Y
