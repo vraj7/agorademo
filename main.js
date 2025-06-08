@@ -2,6 +2,8 @@ let client;
 let localTrack;
 let remoteTrack;
 let localUid;
+let localAudioTrack;
+let remoteAudioTrack;
 
 const joinBtn = document.getElementById('join');
 const leaveBtn = document.getElementById('leave');
@@ -21,9 +23,10 @@ joinBtn.onclick = async () => {
     await client.join(appid, channel, token || null, null).then(uid => { localUid = uid; });
 
     localTrack = await AgoraRTC.createCameraVideoTrack();
+    localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
     document.getElementById('local-placeholder').style.display = 'none';
     localTrack.play('local-player');
-    await client.publish([localTrack]);
+    await client.publish([localTrack, localAudioTrack]);
 
     // Subscribe to already-published remote users (for late joiners)
     client.remoteUsers.forEach(async (user) => {
@@ -32,6 +35,11 @@ joinBtn.onclick = async () => {
             remoteTrack = user.videoTrack;
             document.getElementById('remote-placeholder').style.display = 'none';
             remoteTrack.play('remote-player');
+        }
+        if (user.hasAudio) {
+            await client.subscribe(user, 'audio');
+            remoteAudioTrack = user.audioTrack;
+            remoteAudioTrack.play();
         }
     });
 
@@ -42,11 +50,26 @@ joinBtn.onclick = async () => {
             document.getElementById('remote-placeholder').style.display = 'none';
             remoteTrack.play('remote-player');
         }
+        if (mediaType === 'audio') {
+            remoteAudioTrack = user.audioTrack;
+            remoteAudioTrack.play();
+        }
     });
     client.on('user-unpublished', (user, mediaType) => {
         if (mediaType === 'video' && remoteTrack) {
             remoteTrack.stop();
-            document.getElementById('remote-player').innerHTML = '<span id="remote-placeholder" style="color:#aaa;">No remote video</span>';
+            document.getElementById('remote-player').innerHTML = '';
+            document.getElementById('remote-placeholder')?.remove();
+            const placeholder = document.createElement('span');
+            placeholder.id = 'remote-placeholder';
+            placeholder.innerHTML = `
+                <span class="waiting">Waiting for the other participant to join…</span>
+                <span style="font-size:1.1rem; color:#b0bec5;">Share the channel name and token with your friend to start the meeting.</span>
+            `;
+            document.getElementById('remote-player').appendChild(placeholder);
+        }
+        if (mediaType === 'audio' && remoteAudioTrack) {
+            remoteAudioTrack.stop();
         }
     });
 };
@@ -58,9 +81,24 @@ leaveBtn.onclick = async () => {
         localTrack.stop();
         localTrack.close();
     }
+    if (localAudioTrack) {
+        localAudioTrack.stop();
+        localAudioTrack.close();
+    }
     if (remoteTrack) {
         remoteTrack.stop();
-        document.getElementById('remote-player').innerHTML = '<span id="remote-placeholder" style="color:#aaa;">No remote video</span>';
+        document.getElementById('remote-player').innerHTML = '';
+        document.getElementById('remote-placeholder')?.remove();
+        const placeholder = document.createElement('span');
+        placeholder.id = 'remote-placeholder';
+        placeholder.innerHTML = `
+            <span class="waiting">Waiting for the other participant to join…</span>
+            <span style="font-size:1.1rem; color:#b0bec5;">Share the channel name and token with your friend to start the meeting.</span>
+        `;
+        document.getElementById('remote-player').appendChild(placeholder);
+    }
+    if (remoteAudioTrack) {
+        remoteAudioTrack.stop();
     }
     await client.leave();
     document.getElementById('local-player').innerHTML = '<span id="local-placeholder" style="color:#aaa;">No local video</span>';
