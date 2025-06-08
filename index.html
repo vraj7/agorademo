@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agora 2-Person Video Meet</title>
+    <style>
+        #videos { display: flex; gap: 10px; }
+        video { width: 320px; height: 240px; background: #000; }
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h2>Agora 2-Person Video Meeting</h2>
+    <div class="controls">
+        <input id="appid" type="text" placeholder="Agora App ID" size="36" />
+        <input id="channel" type="text" placeholder="Channel Name" />
+        <input id="token" type="text" placeholder="Token" size="36" />
+        <button id="join">Join</button>
+        <button id="leave" disabled>Leave</button>
+    </div>
+    <div id="videos">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <h4>Local</h4>
+            <div id="local-player" style="width:320px;height:240px;border:2px solid #007bff;display:flex;align-items:center;justify-content:center;background:#222;">
+                <span id="local-placeholder" style="color:#aaa;">No local video</span>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <h4>Remote</h4>
+            <div id="remote-player" style="width:320px;height:240px;border:2px solid #28a745;display:flex;align-items:center;justify-content:center;background:#222;">
+                <span id="remote-placeholder" style="color:#aaa;">No remote video</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
+    <script src="main.js"></script>
+</body>
+</html> 
