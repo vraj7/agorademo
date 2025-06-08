@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agora Video Meet</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', Arial, sans-serif;
@@ -126,6 +127,40 @@
                 padding: 18px 2vw 24px 2vw;
             }
         }
+        .player-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin-top: 18px;
+            background: rgba(25, 118, 210, 0.07);
+            border-radius: 10px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+        }
+        .player-controls button {
+            background: none;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-controls button:hover {
+            background: #e3f2fd;
+        }
+        .player-controls .material-icons {
+            font-size: 2rem;
+            color: #1976d2;
+        }
+        .player-controls input[type="range"] {
+            width: 120px;
+            accent-color: #1976d2;
+        }
     </style>
 </head>
 <body>
@@ -144,6 +179,13 @@
                     <span class="waiting">Waiting for the other participant to join…</span>
                     <span style="font-size:1.1rem; color:#b0bec5;">Share the channel name and token with your friend to start the meeting.</span>
                 </span>
+            </div>
+            <div class="player-controls">
+                <button id="mute-audio" title="Mute/Unmute Microphone"><span class="material-icons">mic</span></button>
+                <button id="mute-video" title="Mute/Unmute Camera"><span class="material-icons">videocam</span></button>
+                <button id="screen-share" title="Share Screen"><span class="material-icons">screen_share</span></button>
+                <button id="resize-player" title="Expand/Shrink Player"><span class="material-icons">fullscreen</span></button>
+                <input id="volume-slider" type="range" min="0" max="100" value="100" title="Remote Volume" />
             </div>
         </div>
     </div>
