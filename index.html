@@ -3,34 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agora 2-Person Video Meet</title>
+    <title>Agora Video Meet</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
     <style>
-        #videos { display: flex; gap: 10px; }
-        video { width: 320px; height: 240px; background: #000; }
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .controls { margin-bottom: 20px; }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.98);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            padding: 48px 36px 36px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 420px;
+            max-width: 98vw;
+        }
+        h2 {
+            margin-bottom: 18px;
+            color: #1976d2;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            font-size: 2.2rem;
+        }
+        .controls {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .controls input {
+            padding: 12px 16px;
+            border: 1.5px solid #b0bec5;
+            border-radius: 8px;
+            font-size: 1.08rem;
+            outline: none;
+            transition: border 0.2s;
+            background: #f7fafc;
+        }
+        .controls input:focus {
+            border: 2px solid #1976d2;
+        }
+        .controls button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #1976d2 0%, #64b5f6 100%);
+            color: #fff;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+        }
+        .controls button:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+        }
+        .player-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 18px;
+            width: 100%;
+        }
+        #remote-player {
+            width: 720px;
+            height: 520px;
+            border: 3.5px solid #1976d2;
+            border-radius: 18px;
+            background: #181f2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 24px rgba(25, 118, 210, 0.10);
+            position: relative;
+            overflow: hidden;
+        }
+        #remote-placeholder {
+            color: #b0bec5;
+            font-size: 1.4rem;
+            text-align: center;
+            padding: 0 24px;
+            line-height: 1.6;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #remote-placeholder .waiting {
+            font-size: 1.7rem;
+            color: #1976d2;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        @media (max-width: 900px) {
+            #remote-player {
+                width: 98vw;
+                height: 60vw;
+                min-height: 220px;
+                min-width: 220px;
+            }
+            .container {
+                min-width: unset;
+                width: 98vw;
+                padding: 18px 2vw 24px 2vw;
+            }
+        }
     </style>
 </head>
 <body>
-    <h2>Agora 2-Person Video Meeting</h2>
-    <div class="controls">
-        <input id="appid" type="text" placeholder="Agora App ID" size="36" />
-        <input id="channel" type="text" placeholder="Channel Name" />
-        <input id="token" type="text" placeholder="Token" size="36" />
-        <button id="join">Join</button>
-        <button id="leave" disabled>Leave</button>
-    </div>
-    <div id="videos">
-        <div style="display: flex; flex-direction: column; align-items: center;">
-            <h4>Local</h4>
-            <div id="local-player" style="width:320px;height:240px;border:2px solid #007bff;display:flex;align-items:center;justify-content:center;background:#222;">
-                <span id="local-placeholder" style="color:#aaa;">No local video</span>
-            </div>
+    <div class="container">
+        <h2>Agora Video Meet</h2>
+        <div class="controls">
+            <input id="appid" type="text" placeholder="Agora App ID" size="36" />
+            <input id="channel" type="text" placeholder="Channel Name" />
+            <input id="token" type="text" placeholder="Token" size="36" />
+            <button id="join">Join</button>
+            <button id="leave" disabled>Leave</button>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: center;">
-            <h4>Remote</h4>
-            <div id="remote-player" style="width:320px;height:240px;border:2px solid #28a745;display:flex;align-items:center;justify-content:center;background:#222;">
-                <span id="remote-placeholder" style="color:#aaa;">No remote video</span>
+        <div class="player-container">
+            <div id="remote-player">
+                <span id="remote-placeholder">
+                    <span class="waiting">Waiting for the other participant to join…</span>
+                    <span style="font-size:1.1rem; color:#b0bec5;">Share the channel name and token with your friend to start the meeting.</span>
+                </span>
             </div>
         </div>
     </div>
