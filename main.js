@@ -24,7 +24,6 @@ joinBtn.onclick = async () => {
 
     localTrack = await AgoraRTC.createCameraVideoTrack();
     localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-    document.getElementById('local-placeholder').style.display = 'none';
     localTrack.play('local-player');
     await client.publish([localTrack, localAudioTrack]);
 
