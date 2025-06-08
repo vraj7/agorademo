@@ -25,6 +25,16 @@ joinBtn.onclick = async () => {
     localTrack.play('local-player');
     await client.publish([localTrack]);
 
+    // Subscribe to already-published remote users (for late joiners)
+    client.remoteUsers.forEach(async (user) => {
+        if (user.hasVideo) {
+            await client.subscribe(user, 'video');
+            remoteTrack = user.videoTrack;
+            document.getElementById('remote-placeholder').style.display = 'none';
+            remoteTrack.play('remote-player');
+        }
+    });
+
     client.on('user-published', async (user, mediaType) => {
         await client.subscribe(user, mediaType);
         if (mediaType === 'video') {
